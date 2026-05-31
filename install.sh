@@ -58,7 +58,12 @@ docker rm "$cid" >/dev/null
 # ── 4. Run the installer (pulls the app image, prompts license, brings it up,
 #       installs the host-agent from the bundled binary).
 cd /opt/nocbox
-# Pass the creds through so install-client.sh doesn't re-prompt for login —
-# we're already authenticated to ghcr.io here.
-NOCMON_IMAGE_TAG="$TAG" NOCBOX_PULL_USER="$PULL_USER" NOCBOX_PULL_TOKEN="$PULL_TOKEN" \
+# Pass creds through (so install-client skips its own login) plus any
+# optionally-supplied install values, so the whole thing can run unattended:
+#   NOCBOX_LICENSE, NOCBOX_HOSTNAME, NOCMON_ADMIN_EMAIL, NOCMON_ADMIN_PASSWORD.
+# Anything not set is simply prompted by install-client.
+NOCMON_IMAGE_TAG="$TAG" \
+  NOCBOX_PULL_USER="$PULL_USER" NOCBOX_PULL_TOKEN="$PULL_TOKEN" \
+  NOCBOX_LICENSE="${NOCBOX_LICENSE:-}" NOCBOX_HOSTNAME="${NOCBOX_HOSTNAME:-}" \
+  NOCMON_ADMIN_EMAIL="${NOCMON_ADMIN_EMAIL:-}" NOCMON_ADMIN_PASSWORD="${NOCMON_ADMIN_PASSWORD:-}" \
   bash scripts/install-client.sh
