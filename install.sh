@@ -13,9 +13,11 @@
 set -euo pipefail
 
 DEPLOY_IMAGE="ghcr.io/teamjorian/nocbox-deploy"
-TAG="${NOCMON_IMAGE_TAG:-}"
-[[ -n "$TAG" ]] || read -r -p "NOCBox version to install (e.g. v0.2.2): " TAG
-[[ -n "$TAG" ]] || { echo "A version is required." >&2; exit 1; }
+# Defaults so a customer normally supplies only NOCBOX_PULL_TOKEN:
+#   - tag defaults to `latest` (the newest released version)
+#   - pull user defaults to the fixed deploy bot
+# Override NOCMON_IMAGE_TAG to pin a specific version (e.g. v0.2.3).
+TAG="${NOCMON_IMAGE_TAG:-latest}"
 export NOCMON_IMAGE_TAG="$TAG"
 
 # ── 1. Docker (install if missing).
@@ -40,10 +42,9 @@ if ! docker info >/dev/null 2>&1; then
 fi
 
 # ── 2. Log in to GHCR with the vendor-issued pull credential.
-PULL_USER="${NOCBOX_PULL_USER:-}"
-[[ -n "$PULL_USER" ]] || read -r -p "GHCR pull user (e.g. teamjorian-deploy): " PULL_USER
+PULL_USER="${NOCBOX_PULL_USER:-teamjorian-deploy}"
 PULL_TOKEN="${NOCBOX_PULL_TOKEN:-}"
-if [[ -z "$PULL_TOKEN" ]]; then read -r -s -p "GHCR pull token (read:packages): " PULL_TOKEN; echo; fi
+if [[ -z "$PULL_TOKEN" ]]; then read -r -s -p "License pull token: " PULL_TOKEN; echo; fi
 echo "$PULL_TOKEN" | docker login ghcr.io -u "$PULL_USER" --password-stdin
 
 # ── 3. Pull the deploy bundle image + extract it into /opt/nocbox (no source).
