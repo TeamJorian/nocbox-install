@@ -61,9 +61,15 @@ cd /opt/nocbox
 # Pass creds through (so install-client skips its own login) plus any
 # optionally-supplied install values, so the whole thing can run unattended:
 #   NOCBOX_LICENSE, NOCBOX_HOSTNAME, NOCMON_ADMIN_EMAIL, NOCMON_ADMIN_PASSWORD.
-# Anything not set is simply prompted by install-client.
-NOCMON_IMAGE_TAG="$TAG" \
-  NOCBOX_PULL_USER="$PULL_USER" NOCBOX_PULL_TOKEN="$PULL_TOKEN" \
-  NOCBOX_LICENSE="${NOCBOX_LICENSE:-}" NOCBOX_HOSTNAME="${NOCBOX_HOSTNAME:-}" \
-  NOCMON_ADMIN_EMAIL="${NOCMON_ADMIN_EMAIL:-}" NOCMON_ADMIN_PASSWORD="${NOCMON_ADMIN_PASSWORD:-}" \
+# Only forward the ones that are actually SET — passing an empty value would
+# export it into install-client's environment, and Docker Compose treats a
+# set-but-empty shell var as OVERRIDING .env, breaking ${VAR:?} interpolation.
+# Anything not forwarded is simply prompted by install-client.
+extra=()
+[[ -n "${NOCBOX_LICENSE:-}"        ]] && extra+=("NOCBOX_LICENSE=$NOCBOX_LICENSE")
+[[ -n "${NOCBOX_HOSTNAME:-}"       ]] && extra+=("NOCBOX_HOSTNAME=$NOCBOX_HOSTNAME")
+[[ -n "${NOCMON_ADMIN_EMAIL:-}"    ]] && extra+=("NOCMON_ADMIN_EMAIL=$NOCMON_ADMIN_EMAIL")
+[[ -n "${NOCMON_ADMIN_PASSWORD:-}" ]] && extra+=("NOCMON_ADMIN_PASSWORD=$NOCMON_ADMIN_PASSWORD")
+env NOCMON_IMAGE_TAG="$TAG" NOCBOX_PULL_USER="$PULL_USER" NOCBOX_PULL_TOKEN="$PULL_TOKEN" \
+  ${extra[@]+"${extra[@]}"} \
   bash scripts/install-client.sh
