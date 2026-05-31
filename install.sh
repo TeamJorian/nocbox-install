@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# NOCBox customer one-shot bootstrap (docs/distribution-client.md).
+#
+# Pulls the deploy bundle FROM the private registry and installs — no tarball to
+# transfer. The customer needs only: a GHCR pull user+token (read:packages), the
+# image tag, and a license (prompted during install).
+#
+#   NOCMON_IMAGE_TAG=v0.2.2 NOCBOX_PULL_USER=teamjorian-deploy \
+#   NOCBOX_PULL_TOKEN=ghp_xxx bash nocbox-bootstrap.sh
+#
+# (Or run it bare and answer the prompts.)
+
+set -euo pipefail
+
+DEPLOY_IMAGE="ghcr.io/teamjorian/nocbox-deploy"
+TAG="${NOCMON_IMAGE_TAG:-}"
+[[ -n "$TAG" ]] || read -r -p "NOCBox version to install (e.g. v0.2.2): " TAG
+[[ -n "$TAG" ]] || { echo "A version is required." >&2; exit 1; }
+export NOCMON_IMAGE_TAG="$TAG"
+
+# ── 1. Docker (install if missing).
+if ! command -v docker >/dev/null 2>&1; then
+  echo "==> Installing Docker Engine…"
+  sudo apt-get update -qq
+  sudo apt-get install -y ca-certificates curl gnupg >/dev/null
+  sudo install -m 0755 -d /etc/apt/keyrings
+  sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+  sudo chmod a+r /etc/apt/keyrings/docker.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
+  sudo apt-get update -qq
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin >/dev/null
+  sudo usermod -aG docker "$USER" || true
+  echo "==> Docker installed. Log OUT and back in (for the docker group), then re-run this script."
+  exit 0
+fi
+if ! docker info >/dev/null 2>&1; then
+  echo "Can't reach the Docker daemon — log out/in (docker group) and re-run." >&2
+  exit 1
+fi
+
+# ── 2. Log in to GHCR with the vendor-issued pull credential.
+PULL_USER="${NOCBOX_PULL_USER:-}"
+[[ -n "$PULL_USER" ]] || read -r -p "GHCR pull user (e.g. teamjorian-deploy): " PULL_USER
+PULL_TOKEN="${NOCBOX_PULL_TOKEN:-}"
+if [[ -z "$PULL_TOKEN" ]]; then read -r -s -p "GHCR pull token (read:packages): " PULL_TOKEN; echo; fi
+echo "$PULL_TOKEN" | docker login ghcr.io -u "$PULL_USER" --password-stdin
+
+# ── 3. Pull the deploy bundle image + extract it into /opt/nocbox (no source).
+echo "==> Fetching deploy bundle ($DEPLOY_IMAGE:$TAG)"
+sudo install -d -o "$USER" -g "$USER" /opt/nocbox
+docker pull "$DEPLOY_IMAGE:$TAG"
+cid="$(docker create "$DEPLOY_IMAGE:$TAG")"
+docker cp "$cid:/bundle/." /opt/nocbox/
+docker rm "$cid" >/dev/null
+
+# ── 4. Run the installer (pulls the app image, prompts license, brings it up,
+#       installs the host-agent from the bundled binary).
+cd /opt/nocbox
+NOCMON_IMAGE_TAG="$TAG" bash scripts/install-client.sh
