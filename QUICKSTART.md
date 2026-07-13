@@ -17,7 +17,7 @@ YAML hand-editing.
 
 ## 1. What you need
 
-- A clean **Ubuntu Server 22.04 or 24.04 LTS** box — a VM is fine (Proxmox,
+- A clean **Ubuntu Server 22.04 LTS** box — 22.04 exactly, **not** 24.04 — a VM is fine (Proxmox,
   XCP-ng, VMware, or bare metal). 4 CPU / 16 GB RAM / ~250 GB disk is comfortable.
 - A login on that box with **`sudo`**.
 - **Outbound internet** (to pull the Docker image).

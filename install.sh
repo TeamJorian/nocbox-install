@@ -12,6 +12,15 @@
 
 set -euo pipefail
 
+# Supported-OS check: Ubuntu Server 22.04 LTS is the only supported OS (24.04
+# dropped 2026-07-13). Warn-only — never brick a re-run on an existing box.
+# Subshell so /etc/os-release's generic vars (ID, NAME, …) don't leak.
+if [[ -r /etc/os-release ]] && \
+   ! (. /etc/os-release && [[ "${ID:-}" == "ubuntu" && "${VERSION_ID:-}" == "22.04" ]]); then
+  echo "WARNING: NOCBox supports Ubuntu Server 22.04 LTS only." >&2
+  echo "         Detected: $(. /etc/os-release && echo "${PRETTY_NAME:-unknown}") — continuing, but this OS is untested." >&2
+fi
+
 DEPLOY_IMAGE="ghcr.io/teamjorian/nocbox-deploy"
 # Defaults so a customer normally supplies only NOCBOX_PULL_TOKEN:
 #   - tag defaults to `latest` (the newest released version)
