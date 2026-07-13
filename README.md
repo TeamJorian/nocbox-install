@@ -8,7 +8,7 @@ tier — no license needed; paid editions (Pro / Enterprise) unlock more.
 **New here? Start with the [Quick Start guide](QUICKSTART.md)** — install →
 first login → your first latency graph, in about 15 minutes.
 
-## Install (fresh Ubuntu 22.04 / 24.04 box)
+## Install (fresh Ubuntu Server 22.04 LTS box)
 
 Interactive (prompts for hostname / admin login):
 ```
