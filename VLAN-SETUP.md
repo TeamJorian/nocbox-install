@@ -382,8 +382,9 @@ or Apply for the VLAN config above.** Two reasons:
 run the same generator, so a live apply would push the same conflicting address
 onto your router.
 
-Tracking issue: **[TeamJorian/nocbox#553](https://github.com/TeamJorian/nocbox/issues/553)**.
-This whole section comes out once that lands.
+This is a known issue and a fix is in progress. This whole section comes out
+once it lands — if this section is still here, the export still needs the manual
+corrections above.
 
 ---
 
