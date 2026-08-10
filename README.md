@@ -8,6 +8,11 @@ tier — no license needed; paid editions (Pro / Enterprise) unlock more.
 **New here? Start with the [Quick Start guide](QUICKSTART.md)** — install →
 first login → your first latency graph, in about 15 minutes.
 
+**Bare mini-PC with no OS yet?** Do
+**[Part 0 — Ubuntu Server install](PART-0-UBUNTU.md)** first (Taglish,
+beginner-level: ISO → bootable USB → installer → static IP → SSH), then pick up
+the Quick Start at step 2.
+
 ## Install (fresh Ubuntu Server 22.04 LTS box)
 
 Interactive (prompts for hostname / admin login):

@@ -18,7 +18,11 @@ YAML hand-editing.
 ## 1. What you need
 
 - A clean **Ubuntu Server 22.04 LTS** box — 22.04 exactly, **not** 24.04 — a VM is fine (Proxmox,
-  XCP-ng, VMware, or bare metal). 4 CPU / 16 GB RAM / ~250 GB disk is comfortable.
+  XCP-ng, VMware, or bare metal). **4 cores / 8–16 GB RAM / 120 GB SSD.** A used
+  business mini-PC (OptiPlex Micro / EliteDesk Mini / ThinkCentre Tiny) clears that.
+  > **No Ubuntu on it yet — just a bare mini-PC?** Start with
+  > **[Part 0 — Ubuntu Server install](PART-0-UBUNTU.md)** (Taglish, beginner-level:
+  > ISO → bootable USB → installer → static IP → SSH), then come back here at step 2.
 - A login on that box with **`sudo`**.
 - **Outbound internet** (to pull the Docker image).
 - A **static IP** for the box (so monitoring doesn't drift on a DHCP renewal).
