@@ -9,7 +9,7 @@ YAML hand-editing.
 > team — honestly, mostly one busy human. So support is **best-effort**: we
 > genuinely try to help, but can't promise fast replies. The good news — the box
 > is designed to run itself, this guide covers the common path, and the **Send
-> feedback** button inside NOCMON (step 8) reaches us *with* the diagnostics we
+> feedback** button inside NOCMON (step 9) reaches us *with* the diagnostics we
 > need to actually help. Need guaranteed response times and hands-on setup?
 > That's what the paid editions are for.
 
@@ -133,19 +133,40 @@ That's a full loop: install → (optional) start trial → monitor.
 
 ---
 
-## 7. (Optional) Reach it from outside your network
+## 7. Multi-ISP? Pin each probe to a specific ISP
 
-No static public IP? Behind CGNAT? You can still reach the dashboard from
-anywhere without forwarding ports, using a Cloudflare Tunnel — **ask us** and
-we'll send the short walkthrough.
+Step 6 gets you real graphs, but on a multi-uplink network every probe still
+leaves via your router's **default route** — so you're graphing one ISP three
+times, not three ISPs.
 
-> Want per-ISP / per-VLAN source-bound probing (the multi-ISP case NOCBox is
-> built for)? That needs tagged VLANs on a real Linux host plus the host-agent —
-> ask us for the VLAN setup guide. It is not required to test the basics.
+To compare uplinks honestly, each probe needs its own source IP, and your router
+needs a rule forcing that source out one specific uplink. Then the same targets
+get pinged through every ISP and the numbers are finally comparable.
+
+👉 **[VLAN-SETUP.md](VLAN-SETUP.md)** — the full walkthrough: topology, the
+RouterOS config to paste, the NOCMON side, and a **no-VLAN variant** for flat
+LANs that can't tag. About 45 minutes.
+
+Your default route isn't touched, and none of this is needed to test the basics.
 
 ---
 
-## 8. Send us feedback
+## 8. (Optional) Reach it from outside your network
+
+No static public IP? Behind CGNAT? You can reach the dashboard from anywhere
+without forwarding any ports, using a **Cloudflare Tunnel**.
+
+This is built into NOCMON now — **Settings → Remote Access**: paste your public
+hostname and a connector token, and the box configures itself. No SSH, no file
+editing.
+
+You'll need your own **free Cloudflare account** and a **domain** added to it
+(the tunnel runs under your account, not ours). **Ask us** for the step-by-step
+and we'll send it over.
+
+---
+
+## 9. Send us feedback
 
 Hit a bug, or have an idea? Don't go hunting for our DM — there's a **Send
 feedback** button right in NOCMON:
