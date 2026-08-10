@@ -362,16 +362,28 @@ a bare `netplan apply` wipes the rules. Do **one** Apply Host Config from NOCMON
 ## A note on the Enterprise MikroTik generator
 
 If you're on **Enterprise**, NOCMON has a `/mikrotik` page that can read your
-router's live state and export a `.rsc` of the VLANs and addresses it believes
-should be there.
+router's live state, **export** a `.rsc`, and **apply** changes to the router
+directly.
 
-**Configure the router from this guide, not from that export.** As of now the
-export covers `/interface vlan`, `/ip address`, `/routing table` and `/ip route`
-— it does **not** emit the `/routing rule` in step 5 or the NAT rule in step 6,
-and those are the two lines that make policy routing actually route. Pasting the
-export alone gets you tables nothing looks in.
+**Configure your router from this guide. For now, don't use either the export
+or Apply for the VLAN config above.** Two reasons:
 
-Tracking issue: **TeamJorian/nocbox#553**.
+- **It doesn't emit the parts that make PBR work.** The generated config covers
+  `/interface vlan`, `/ip address`, `/routing table` and `/ip route` — but not
+  the `/routing rule` in step 5 or the NAT rule in step 6. Those are the two
+  lines that actually route. Without them you get tables nothing looks in.
+- **The address it wants to put on the router is the NOCBox's own.** It emits
+  the probe's source IP (`10.150.<n>.40`) rather than the router's gateway
+  address (`.1`) — a duplicate IP on the same segment. And the per-ISP default
+  route's next hop comes out as the router's own VLAN address instead of your
+  ISP's.
+
+**This applies to the Apply button too, not just the copy-paste export** — both
+run the same generator, so a live apply would push the same conflicting address
+onto your router.
+
+Tracking issue: **[TeamJorian/nocbox#553](https://github.com/TeamJorian/nocbox/issues/553)**.
+This whole section comes out once that lands.
 
 ---
 
